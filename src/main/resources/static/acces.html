@@ -4,8 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Access</title>
+    <style>
+        table {
+            border: 2px solid #000;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+
+    <table id="myTable">
+    </table>
+    <button onclick="createTable(3)">Создать таблицу</button>
+    <button onclick="tryWriteValue()">Попробовать записать ивент</button>
 </head>
 <body>
-<h1>Access</h1>
+<h1 id="username">Hi, </h1>
+
+
+<script src="AuthPage.js"></script>
+
+<script>
+    var usernameValue = getCookie("username");
+
+    if (usernameValue) {
+        document.getElementById("username").innerText = "Hi, " + usernameValue;
+    }
+
+ function createTable(rows) {
+    var table = document.getElementById("myTable");
+    table.innerHTML = "";
+
+    var headerRow = table.insertRow(0);
+    var headers = ["id", "name", "country", "description", "receivedDate"];
+    for (var j = 0; j < 5; j++) {
+        var cell = headerRow.insertCell(j);
+        cell.innerHTML = headers[j];
+    }
+
+    for (var i = 1; i <= rows; i++) {
+        var row = table.insertRow(i);
+        for (var j = 0; j < 5; j++) {
+            var cell = row.insertCell(j);
+            cell.innerHTML = "Строка " + i + ", столбец " + (j + 1);
+        }
+    }
+}
+
+function tryWriteValue() {
+    fetch('/tryPut', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        console.log("Event added successfully");
+    })
+    .catch(error => {
+        console.error('There has been a problem with your fetch operation:', error);
+    });
+}
+</script>
 </body>
 </html>

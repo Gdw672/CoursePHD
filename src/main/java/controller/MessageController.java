@@ -1,5 +1,8 @@
 package controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import model.Event;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,14 +32,13 @@ public class MessageController {
 
         String savedPassword = jedis.hget("users", loginData.username);
 
-
         if(savedPassword != null)
         {
             if(savedPassword.equals(loginData.password)) {
                 return ("OldAccess");
             }
             else {
-                return "WrondAcces";
+                return "WrongAccess";
             }
         }
 
@@ -45,6 +47,23 @@ public class MessageController {
         }
 
         return "NewAccess";
+    }
+
+    @PostMapping("/tryPut")
+    public void TryPut() throws JsonProcessingException {
+        Event concreteEvent = new Event();
+
+        concreteEvent.id = 2;
+        concreteEvent.country = "Mexico";
+        concreteEvent.description = "Culture is active today!";
+        concreteEvent.name = "Mexico Folk Music";
+        concreteEvent.receivedDate = "04.06.2025";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        String eventJson = objectMapper.writeValueAsString(concreteEvent);
+
+        jedis.set("event:" + concreteEvent.id, eventJson);
     }
 }
 

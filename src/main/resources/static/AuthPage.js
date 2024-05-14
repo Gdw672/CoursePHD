@@ -31,10 +31,15 @@ function postData() {
         return response.text();
     })
     .then(data => {
-        setCookie("username", document.getElementById("username").value);
-        console.log(data);
+         setCookie("username", document.getElementById("username").value);
 
-        console.log(getCookie("username"));
+         if(data == "OldAccess" || data == "NewAccess") {
+         console.log("Password correct");
+         window.location.href = "acces.html";
+         }
+         else {
+         console.log("Password incorrect");
+         }
     })
     .catch(error => {
         console.error('There has been a problem with your fetch operation:', error);
