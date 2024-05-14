@@ -33,23 +33,18 @@ public class MessageController {
         if(savedPassword != null)
         {
             if(savedPassword.equals(loginData.password)) {
-                return ("welcome!, you already exist");
+                return ("OldAccess");
             }
             else {
-                return "Wrong password";
+                return "WrondAcces";
             }
-        }
-
-        if(jedis.hget("users", loginData.username) != null && jedis.hget("users", loginData.username) != loginData.password)
-        {
-            return ("Wrong password");
         }
 
        for (Map.Entry<String, String> entry : user.entrySet()) {
             jedis.hset("users", entry.getKey(), entry.getValue());
         }
 
-        return loginData.username + " welcome, you are new user!";
+        return "NewAccess";
     }
 }
 
