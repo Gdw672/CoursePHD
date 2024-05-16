@@ -3,13 +3,18 @@ package controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import model.Event;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import redis.clients.jedis.Jedis;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 public class MessageController {
@@ -49,15 +54,34 @@ public class MessageController {
         return "NewAccess";
     }
 
+    @PostMapping("/getAllEvents")
+    @ResponseBody
+    public ResponseEntity<ArrayList<Event>>  getAllEvents() throws JsonProcessingException {
+        TryPut();
+        var events = new ArrayList<Event>();
+
+        Set<String> eventKeys = jedis.keys("event:*");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        for(String key : eventKeys) {
+            String eventJson = jedis.get(key);
+            Event event = objectMapper.readValue(eventJson, Event.class);
+            events.add(event);
+        }
+
+        return new ResponseEntity<>(events, HttpStatus.OK);
+    }
+
     @PostMapping("/tryPut")
     public void TryPut() throws JsonProcessingException {
         Event concreteEvent = new Event();
 
-        concreteEvent.id = 2;
+        concreteEvent.id = 3;
         concreteEvent.country = "Mexico";
-        concreteEvent.description = "Culture is active today!";
-        concreteEvent.name = "Mexico Folk Music";
-        concreteEvent.receivedDate = "04.06.2025";
+        concreteEvent.description = "We are in Mexico!";
+        concreteEvent.name = "Mexico love all";
+        concreteEvent.receivedDate = "06.01.2025";
 
         ObjectMapper objectMapper = new ObjectMapper();
 

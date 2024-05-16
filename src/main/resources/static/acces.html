@@ -26,6 +26,7 @@
     </table>
     <button onclick="createTable(3)">Создать таблицу</button>
     <button onclick="tryWriteValue()">Попробовать записать ивент</button>
+    <button onclick="logEvent()">Вывести ивент</button>
 </head>
 <body>
 <h1 id="username">Hi, </h1>
@@ -35,6 +36,7 @@
 
 <script>
     var usernameValue = getCookie("username");
+    var events = null;
 
     if (usernameValue) {
         document.getElementById("username").innerText = "Hi, " + usernameValue;
@@ -45,23 +47,37 @@
     table.innerHTML = "";
 
     var headerRow = table.insertRow(0);
-    var headers = ["id", "name", "country", "description", "receivedDate"];
-    for (var j = 0; j < 5; j++) {
+    var headers = ["name", "country", "description", "receivedDate"];
+    for (var j = 0; j < 4; j++) {
         var cell = headerRow.insertCell(j);
         cell.innerHTML = headers[j];
     }
 
-    for (var i = 1; i <= rows; i++) {
+    for (var i = 1; i <= events.length; i++) {
         var row = table.insertRow(i);
-        for (var j = 0; j < 5; j++) {
+        for (var j = 0; j < 4; j++) {
             var cell = row.insertCell(j);
-            cell.innerHTML = "Строка " + i + ", столбец " + (j + 1);
+            if(cell.cellIndex == 0) {
+            cell.innerHTML = events[i-1].name;
+            }
+           else if(cell.cellIndex == 1) {
+             cell.innerHTML = events[i-1].country;
+            }
+           else if(cell.cellIndex == 2) {
+             cell.innerHTML = events[i-1].description;
+            }
+           else if(cell.cellIndex == 3) {
+             cell.innerHTML = events[i-1].receivedDate;
+            }
+            else {
+              cell.innerHTML = "Строка " + i + ", столбец " + (j + 1);
+            }
         }
     }
 }
 
 function tryWriteValue() {
-    fetch('/tryPut', {
+    fetch('/getAllEvents', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -71,14 +87,23 @@ function tryWriteValue() {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return response.text();
+        return response.json();
     })
     .then(data => {
-        console.log("Event added successfully");
+        events = data;
+        logEvent();
     })
     .catch(error => {
         console.error('There has been a problem with your fetch operation:', error);
     });
+}
+
+function logEvent() {
+
+console.log(events);
+
+console.log(events[0]);
+console.log(events[1]);
 }
 </script>
 </body>
