@@ -25,8 +25,8 @@
     <table id="myTable">
     </table>
     <button onclick="createTable(3)">Создать таблицу</button>
-    <button onclick="tryWriteValue()">Попробовать записать ивент</button>
-    <button onclick="logEvent()">Вывести ивент</button>
+    <button onclick="addRow()">Добавить элемент</button>
+    <button onclick="postNewTable()">Отправить изменения</button>
 </head>
 <body>
 <h1 id="username">Hi, </h1>
@@ -42,7 +42,28 @@
         document.getElementById("username").innerText = "Hi, " + usernameValue;
     }
 
- function createTable(rows) {
+    function createTable(rows) {
+
+        fetch('/getAllEvents', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                events = data;
+                console.log(events);
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+
     var table = document.getElementById("myTable");
     table.innerHTML = "";
 
@@ -58,31 +79,58 @@
         for (var j = 0; j < 6; j++) {
             var cell = row.insertCell(j);
             if (cell.cellIndex == 0) {
-                cell.innerHTML = events[i - 1].name;
+                var input = document.createElement("input");
+                input.value = events[i - 1].name;
+                input.disabled = true;
+                cell.appendChild(input);
             }
             else if (cell.cellIndex == 1) {
-                cell.innerHTML = events[i - 1].country;
+                var input = document.createElement("input");
+                input.value = events[i - 1].country;
+                input.disabled = true;
+                cell.appendChild(input);
             }
             else if (cell.cellIndex == 2) {
-                cell.innerHTML = events[i - 1].description;
+                var input = document.createElement("input");
+                input.value = events[i - 1].description;
+                input.disabled = true;
+                cell.appendChild(input);
             }
             else if (cell.cellIndex == 3) {
-                cell.innerHTML = events[i - 1].receivedDate;
+                var input = document.createElement("input");
+                input.value = events[i - 1].receivedDate;
+                input.disabled = true;
+                cell.appendChild(input);
             }
             else if (cell.cellIndex == 4) {
                 var changeButton = document.createElement("button");
                 changeButton.innerHTML = "Change";
                 changeButton.onclick = function () {
-                    alert("Change button clicked for row " + i);
+                    var rowToChange = [];
+                    var cells = this.parentNode.parentNode.cells;
+                    for (var i = 0; i < 4; i++) {
+                        rowToChange.push(cells[i].querySelector("input").value);
+                    }
+                    for (var i = 0; i < 4; i++) {
+                        var input = cells[i].querySelector("input");
+                        if (input.disabled == false) {
+                            input.disabled = true;
+                        }
+                        else {
+                            input.disabled = false;
+                        }
+                    }
+                    console.log(rowToChange);
                 };
-                cell.appendChild(changeButton);
 
+                cell.appendChild(changeButton);
             }
             else if (cell.cellIndex == 5) {
                 var deleteButton = document.createElement("button");
                 deleteButton.innerHTML = "Delete";
                 deleteButton.onclick = function () {
-                    alert("Delete button clicked for row " + i);
+                    var row = this.parentNode.parentNode;
+                    row.remove();
                 };
                 cell.appendChild(deleteButton);
             }
@@ -93,35 +141,77 @@
      }
 }
 
-function tryWriteValue() {
-    fetch('/getAllEvents', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
+    function extractRowsToArray() {
+        var table = document.getElementById("myTable");
+        var rowsArray = [];
+
+        for (var i = 1; i < table.rows.length; i++) {
+            var cells = table.rows[i].cells;
+            var rowObject = {
+                name: cells[0].innerHTML,
+                country: cells[1].innerHTML,
+                description: cells[2].innerHTML,
+                receivedDate: cells[3].innerHTML
+            };
+            rowsArray.push(rowObject);
         }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
+
+        return rowsArray;
+    }
+
+    function addRow() {
+        var table = document.getElementById("myTable");
+        var newRow = table.insertRow();
+
+        for (var i = 0; i < 6; i++) {
+            if (i < 4) {
+                var cell = newRow.insertCell(-1);
+                var input = document.createElement("input");
+                input.value = "";
+                input.disabled = true;
+                cell.appendChild(input);
+            }
+            else if (i == 4) {
+                var cell = newRow.insertCell(-1);
+                var changeButton = document.createElement("button");
+                changeButton.innerHTML = "Change";
+                changeButton.onclick = function () {
+                    var rowToChange = [];
+                    var cells = this.parentNode.parentNode.cells;
+                    for (var i = 0; i < 4; i++) {
+                        rowToChange.push(cells[i].querySelector("input").value);
+                    }
+                    for (var i = 0; i < 4; i++) {
+                        var input = cells[i].querySelector("input");
+                        if (input.disabled == false) {
+                            input.disabled = true;
+                        }
+                        else {
+                            input.disabled = false;
+                        }
+                    }
+                    console.log(rowToChange);
+                };
+
+                cell.appendChild(changeButton);
+            }
+            else if (i == 5) {
+                var cell = newRow.insertCell(-1);
+                var deleteButton = document.createElement("button");
+                deleteButton.innerHTML = "Delete";
+                deleteButton.onclick = function () {
+                    var row = this.parentNode.parentNode;
+                    row.remove();
+                };
+                cell.appendChild(deleteButton);
+            }
         }
-        return response.json();
-    })
-    .then(data => {
-        events = data;
-        logEvent();
-    })
-    .catch(error => {
-        console.error('There has been a problem with your fetch operation:', error);
-    });
-}
+    }
 
-function logEvent() {
 
-console.log(events);
-
-console.log(events[0]);
-console.log(events[1]);
-}
+    function postNewTable() {
+        console.log("TABLE");
+    }
 </script>
 </body>
 </html>
