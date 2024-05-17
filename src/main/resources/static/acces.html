@@ -47,33 +47,50 @@
     table.innerHTML = "";
 
     var headerRow = table.insertRow(0);
-    var headers = ["name", "country", "description", "receivedDate"];
-    for (var j = 0; j < 4; j++) {
+    var headers = ["name", "country", "description", "receivedDate", "change", "delete"];
+    for (var j = 0; j < 6; j++) {
         var cell = headerRow.insertCell(j);
         cell.innerHTML = headers[j];
     }
 
     for (var i = 1; i <= events.length; i++) {
         var row = table.insertRow(i);
-        for (var j = 0; j < 4; j++) {
+        for (var j = 0; j < 6; j++) {
             var cell = row.insertCell(j);
-            if(cell.cellIndex == 0) {
-            cell.innerHTML = events[i-1].name;
+            if (cell.cellIndex == 0) {
+                cell.innerHTML = events[i - 1].name;
             }
-           else if(cell.cellIndex == 1) {
-             cell.innerHTML = events[i-1].country;
+            else if (cell.cellIndex == 1) {
+                cell.innerHTML = events[i - 1].country;
             }
-           else if(cell.cellIndex == 2) {
-             cell.innerHTML = events[i-1].description;
+            else if (cell.cellIndex == 2) {
+                cell.innerHTML = events[i - 1].description;
             }
-           else if(cell.cellIndex == 3) {
-             cell.innerHTML = events[i-1].receivedDate;
+            else if (cell.cellIndex == 3) {
+                cell.innerHTML = events[i - 1].receivedDate;
+            }
+            else if (cell.cellIndex == 4) {
+                var changeButton = document.createElement("button");
+                changeButton.innerHTML = "Change";
+                changeButton.onclick = function () {
+                    alert("Change button clicked for row " + i);
+                };
+                cell.appendChild(changeButton);
+
+            }
+            else if (cell.cellIndex == 5) {
+                var deleteButton = document.createElement("button");
+                deleteButton.innerHTML = "Delete";
+                deleteButton.onclick = function () {
+                    alert("Delete button clicked for row " + i);
+                };
+                cell.appendChild(deleteButton);
             }
             else {
               cell.innerHTML = "Строка " + i + ", столбец " + (j + 1);
             }
         }
-    }
+     }
 }
 
 function tryWriteValue() {
