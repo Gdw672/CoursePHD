@@ -147,17 +147,19 @@
 
         for (var i = 1; i < table.rows.length; i++) {
             var cells = table.rows[i].cells;
+
             var rowObject = {
-                name: cells[0].innerHTML,
-                country: cells[1].innerHTML,
-                description: cells[2].innerHTML,
-                receivedDate: cells[3].innerHTML
+                name: cells[0].children[0].value,
+                country: cells[1].children[0].value,
+                description: cells[2].children[0].value,
+                receivedDate: cells[3].children[0].value
             };
             rowsArray.push(rowObject);
         }
 
         return rowsArray;
     }
+
 
     function addRow() {
         var table = document.getElementById("myTable");
@@ -210,7 +212,31 @@
 
 
     function postNewTable() {
-        console.log("TABLE");
+        var table = document.getElementById("myTable");
+        var newEvents = [];
+
+
+        var newEvents = extractRowsToArray();
+
+        var jsonData = JSON.stringify(newEvents);
+
+        console.log(jsonData);
+
+        fetch('/updateEvents', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: jsonData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
     }
 </script>
 </body>

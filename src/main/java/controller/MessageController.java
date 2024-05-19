@@ -11,10 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import redis.clients.jedis.Jedis;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 public class MessageController {
@@ -24,7 +21,7 @@ public class MessageController {
     @PostMapping("/message")
     public String updateMessage(@RequestBody String newMessage) {
         message += newMessage;
-        return  message;
+        return message;
     }
 
     @PostMapping("/postData")
@@ -37,17 +34,15 @@ public class MessageController {
 
         String savedPassword = jedis.hget("users", loginData.username);
 
-        if(savedPassword != null)
-        {
-            if(savedPassword.equals(loginData.password)) {
+        if (savedPassword != null) {
+            if (savedPassword.equals(loginData.password)) {
                 return ("OldAccess");
-            }
-            else {
+            } else {
                 return "WrongAccess";
             }
         }
 
-       for (Map.Entry<String, String> entry : user.entrySet()) {
+        for (Map.Entry<String, String> entry : user.entrySet()) {
             jedis.hset("users", entry.getKey(), entry.getValue());
         }
 
@@ -56,15 +51,14 @@ public class MessageController {
 
     @PostMapping("/getAllEvents")
     @ResponseBody
-    public ResponseEntity<ArrayList<Event>>  getAllEvents() throws JsonProcessingException {
-        TryPut();
+    public ResponseEntity<ArrayList<Event>> getAllEvents() throws JsonProcessingException {
         var events = new ArrayList<Event>();
 
         Set<String> eventKeys = jedis.keys("event:*");
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        for(String key : eventKeys) {
+        for (String key : eventKeys) {
             String eventJson = jedis.get(key);
             Event event = objectMapper.readValue(eventJson, Event.class);
             events.add(event);
@@ -89,5 +83,28 @@ public class MessageController {
 
         jedis.set("event:" + concreteEvent.id, eventJson);
     }
-}
 
+    @PostMapping("/updateEvents")
+    public void UpdateEvents(@RequestBody List<Event> events) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        jedis.del("event:*");
+        int id = 0;
+        for (Event event : events) {
+            event.id = id;
+            id++;
+            var eventJson = objectMapper.writeValueAsString(event);
+            jedis.set("event:" + event.id, eventJson);
+        }
+    }
+    /*private void SendLog() {
+        String index = "logs";
+        String logMessage = "Hello";
+        ElasticLoggerService loggerService = new ElasticLoggerService("localhost", 9200, "http");
+        loggerService.log(index, logMessage);
+        try {
+            loggerService.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }*/
+}
